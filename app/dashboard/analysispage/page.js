@@ -1,146 +1,201 @@
 'use client';
 
-import React from 'react';
-import { Search, Filter, ChevronRight, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Search, Filter, ChevronRight, ArrowUpRight, 
+  ShieldAlert, BadgeCheck, Clock, GripVertical 
+} from 'lucide-react';
+
+// dnd-kit imports
+import {
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+import { cn } from '@/lib/utils';
+
+// --- DRAGGABLE WRAPPER ---
+const SortableWidget = ({ id, children }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 'auto',
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group">
+      {/* Drag Handle - Only visible on hover */}
+      <div 
+        {...attributes} 
+        {...listeners} 
+        className="absolute top-4 right-4 z-30 cursor-grab active:grabbing p-1.5 bg-secondary border border-border rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <GripVertical className="w-4 h-4 text-muted-foreground" />
+      </div>
+      {children}
+    </div>
+  );
+};
+
+// --- REUSABLE UI COMPONENTS ---
+
+const MetricCard = ({ label, value, subtext, trend, variant = "default" }) => (
+  <div className="bg-card p-6 rounded-xl border border-border shadow-sm h-full">
+    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{label}</p>
+    <h3 className={cn(
+      "text-3xl font-bold tracking-tight",
+      variant === "destructive" ? "text-destructive" : "text-card-foreground"
+    )}>{value}</h3>
+    <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
+      {trend && (
+        <span className={cn(
+          "px-2 py-1 rounded-full",
+          variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+        )}>
+          {trend}
+        </span>
+      )}
+      <span className="text-muted-foreground">{subtext}</span>
+    </div>
+  </div>
+);
+
+const StatusBadge = ({ status }) => {
+  const styles = {
+    CLEARED: "bg-primary/10 text-primary border-primary/20",
+    FLAGGED: "bg-destructive/10 text-destructive border-destructive/20",
+    PENDING: "bg-secondary text-muted-foreground border-border",
+  };
+  const Icons = { CLEARED: BadgeCheck, FLAGGED: ShieldAlert, PENDING: Clock };
+  const Icon = Icons[status] || Clock;
+
+  return (
+    <div className={cn("flex items-center gap-1.5 px-2 py-1 rounded border text-[9px] font-black uppercase tracking-widest", styles[status])}>
+      <Icon className="w-3 h-3" />
+      {status}
+    </div>
+  );
+};
+
+// --- MAIN PAGE ---
 
 const AnalysisPage = () => {
+  // Widget State for Phase 2 "Builder" Demand
+  const [widgetOrder, setWidgetOrder] = useState(['metrics', 'table']);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setWidgetOrder((items) => {
+        const oldIndex = items.indexOf(active.id);
+        const newIndex = items.indexOf(over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   const transactions = [
-    { date: '2023-07-24', time: '14:02', merchant: 'Amazon Web Services', category: 'SaaS / Infrastructure', ref: 'TXN-94621-BBX', status: 'CLEARED', amount: '$42,801.12', type: 'blue' },
-    { date: '2023-07-24', time: '12:45', merchant: 'Unknown Entity: HK_PAY_001', category: 'Uncategorized', ref: 'TXN-94618-ERR', status: 'FLAGGED', amount: '$15,000.00', type: 'red' },
-    { date: '2023-07-23', time: '09:15', merchant: 'WeWork Manhattan', category: 'Facility / Rent', ref: 'TXN-93992-NYK', status: 'CLEARED', amount: '$8,450.00', type: 'blue' },
-    { date: '2023-07-22', time: '18:30', merchant: 'Corporate Catering Inc.', category: 'T&E / Meals', ref: 'TXN-93881-CAT', status: 'CLEARED', amount: '$1,244.50', type: 'blue' },
-    { date: '2023-07-22', time: '11:00', merchant: 'Delta Air Lines', category: 'T&E / Travel', ref: 'TXN-93875-DAL', status: 'PENDING', amount: '$3,120.20', type: 'blue' },
+    { id: '1', date: '2023-07-24', merchant: 'Amazon Web Services', category: 'Infrastructure', ref: 'TXN-94621', status: 'CLEARED', amount: '$42,801.12' },
+    { id: '2', date: '2023-07-24', merchant: 'HK_PAY_001', category: 'Uncategorized', ref: 'TXN-94618', status: 'FLAGGED', amount: '$15,000.00' },
+    { id: '3', date: '2023-07-23', merchant: 'WeWork Manhattan', category: 'Rent', ref: 'TXN-93992', status: 'CLEARED', amount: '$8,450.00' },
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-10 animate-in fade-in duration-700 pb-20">
       
-      {/* 1. Analysis Specific Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="md:col-span-2 bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Transaction Volume</p>
-          <h3 className="text-3xl lg:text-4xl font-bold text-slate-800 tracking-tight">$14,292,840.42</h3>
-          <div className="mt-4 flex flex-wrap gap-3 text-xs font-bold">
-            <span className="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full">+12.4% vs prev. month</span>
-            <span className="text-slate-400 self-center">Last calculation 4m ago</span>
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Flagged for Review</p>
-          <h3 className="text-4xl font-bold text-slate-800">42</h3>
-          <div className="mt-4">
-            <span className="bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Critical Priority</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Avg. Ticket Size</p>
-          <h3 className="text-4xl font-bold text-slate-800">$2,842.11</h3>
-          <div className="mt-4 flex items-center gap-1 text-slate-400 text-xs font-bold uppercase tracking-widest">
-            <ArrowUpRight className="w-3.5 h-3.5" /> Stabilizing
-          </div>
+      {/* Header (Non-draggable) */}
+      <div className="flex justify-between items-end">
+        <div>
+          {/* <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">Virtus Finance Hub</span>
+          </div> */}
+          <h2 className="text-4xl font-black text-foreground tracking-tighter">Analysis Engine</h2>
         </div>
       </div>
 
-      {/* 2. Main Transaction Table Container */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-        
-        {/* Table Filters Header */}
-        <div className="p-4 lg:p-6 border-b border-slate-100">
-          <div className="flex flex-col lg:flex-row justify-between gap-4">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search by Merchant or Reference ID..." 
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <div className="bg-slate-100 p-1 rounded-lg flex gap-1">
-                <button className="bg-white px-3 py-1.5 rounded text-[10px] font-bold shadow-sm">ALL TRANSACTIONS</button>
-                <button className="px-3 py-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition">PENDING</button>
-                <button className="px-3 py-1.5 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition">CLEARED</button>
-              </div>
-              <button className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-lg text-[10px] font-bold text-slate-600 transition uppercase">
-                <Filter className="w-3 h-3" /> Advanced Filters
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Responsive Table Wrapper */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[900px]">
-            <thead className="bg-slate-50/50 border-b border-slate-100">
-              <tr className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Merchant / Entity</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Reference ID</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {transactions.map((t, i) => (
-                <tr key={i} className={`hover:bg-slate-50/80 transition-colors ${t.status === 'FLAGGED' ? 'bg-red-50/30' : ''}`}>
-                  <td className="px-6 py-4 text-sm">
-                    <p className="font-semibold text-slate-600">{t.date}</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{t.time}</p>
-                  </td>
-                  <td className="px-6 py-4 flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded ${t.type === 'red' ? 'bg-red-100' : 'bg-blue-100'} flex items-center justify-center shrink-0`}>
-                       <div className={`w-3.5 h-3.5 rounded-sm ${t.type === 'red' ? 'bg-red-500 shadow-sm shadow-red-200' : 'bg-blue-500 shadow-sm shadow-blue-200'}`} />
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={widgetOrder} strategy={verticalListSortingStrategy}>
+          <div className="space-y-8">
+            {widgetOrder.map((id) => (
+              <SortableWidget key={id} id={id}>
+                {id === 'metrics' ? (
+                  /* --- METRICS WIDGET --- */
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <MetricCard label="Total Volume" value="$14.2M" trend="+12.4%" subtext="vs prev" />
+                    <MetricCard label="Flagged" value="42" variant="destructive" subtext="Action Required" />
+                    <MetricCard label="Avg Ticket" value="$2,842" subtext="Steady" />
+                  </div>
+                ) : (
+                  /* --- TABLE WIDGET --- */
+                  <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border bg-secondary/10 flex justify-between gap-4">
+                      <div className="relative flex-1 max-w-sm">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input placeholder="Search records..." className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" />
+                      </div>
+                      <button className="bg-background border border-border px-4 py-2 rounded-xl text-xs font-bold hover:bg-secondary">Filters</button>
                     </div>
-                    <span className="text-sm font-bold text-slate-800">{t.merchant}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="bg-slate-100 text-slate-500 text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-slate-200/50">
-                      {t.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-[11px] font-mono text-slate-400 font-bold tracking-tight">{t.ref}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${t.type === 'red' ? 'bg-red-500' : 'bg-blue-500'}`} />
-                      <span className={`text-[10px] font-bold uppercase tracking-widest ${t.type === 'red' ? 'text-red-600' : 'text-slate-600'}`}>{t.status}</span>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-secondary/30">
+                          <tr className="text-[10px] font-black text-muted-foreground uppercase tracking-widest border-b border-border">
+                            <th className="px-8 py-5">Merchant</th>
+                            <th className="px-8 py-5">Category</th>
+                            <th className="px-8 py-5 text-center">Status</th>
+                            <th className="px-8 py-5 text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {transactions.map((t) => (
+                            <tr key={t.id} className="hover:bg-secondary/20 transition-all">
+                              <td className="px-8 py-5">
+                                <p className="font-bold text-sm text-foreground">{t.merchant}</p>
+                                <p className="text-[10px] text-muted-foreground font-mono">{t.ref}</p>
+                              </td>
+                              <td className="px-8 py-5">
+                                <span className="bg-secondary px-2 py-1 rounded text-[9px] font-bold text-muted-foreground border border-border">
+                                  {t.category}
+                                </span>
+                              </td>
+                              <td className="px-8 py-5 flex justify-center">
+                                <StatusBadge status={t.status} />
+                              </td>
+                              <td className={cn("px-8 py-5 text-right font-bold text-sm tabular-nums", t.status === 'FLAGGED' ? "text-destructive" : "text-foreground")}>
+                                {t.amount}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </td>
-                  <td className={`px-6 py-4 text-right font-bold text-sm tabular-nums ${t.type === 'red' ? 'text-red-600' : 'text-slate-800'}`}>
-                    {t.amount}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Footer */}
-        <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50/30">
-          <p>Showing 1-25 of 12,402 transactions</p>
-          <div className="flex items-center gap-2 text-slate-700">
-            <button className="w-8 h-8 rounded border border-slate-200 bg-white flex items-center justify-center shadow-sm">1</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:text-blue-600">2</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:text-blue-600">3</button>
-            <span className="px-1 text-slate-300">...</span>
-            <button className="w-8 h-8 flex items-center justify-center hover:text-blue-600">497</button>
-            <ChevronRight className="w-4 h-4 ml-1 cursor-pointer hover:text-blue-600" />
+                  </div>
+                )}
+              </SortableWidget>
+            ))}
           </div>
-        </div>
-      </div>
-
-      {/* 3. Global Footer Stats */}
-      <footer className="pt-4 flex items-center justify-between text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em]">
-        <div className="flex gap-10">
-          <p>Ledger Status: <span className="text-emerald-500 ml-1">Synced</span></p>
-          <p>System Latency: <span className="text-slate-600 ml-1">42ms</span></p>
-        </div>
-        <div className="flex gap-6">
-          <a href="#" className="hover:text-slate-600">Data Protocol</a>
-        </div>
-      </footer>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 };
