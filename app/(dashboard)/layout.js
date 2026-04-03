@@ -1,0 +1,16 @@
+import Sidebar from "@/components/sidebar";
+import Header from "@/components/header";
+
+export default function DashboardLayout({ children }) {
+  return (
+    <div className="flex min-h-screen bg-background text-foreground">
+      <Sidebar />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

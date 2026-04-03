@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  BarChart3, TrendingUp, ShieldCheck, Activity, 
-  ArrowUpRight, DollarSign, Percent, GripVertical, Maximize2 
+import {
+  TrendingUp, ShieldCheck, Activity,
+  ArrowUpRight, DollarSign, Percent, GripVertical, Maximize2
 } from 'lucide-react';
 
-// dnd-kit imports
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
 } from '@dnd-kit/core';
@@ -16,8 +15,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 import { cn } from '@/lib/utils';
-
-// --- DRAGGABLE & RESIZABLE WRAPPER ---
 
 const SortableWidget = ({ id, children, isFullWidth, onResize }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -30,25 +27,25 @@ const SortableWidget = ({ id, children, isFullWidth, onResize }) => {
   };
 
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
+    <div
+      ref={setNodeRef}
+      style={style}
       className={cn(
         "relative group transition-all duration-500 ease-in-out",
         isFullWidth ? "lg:col-span-2" : "lg:col-span-1"
       )}
     >
-      {/* Toolbelt: Drag & Resize */}
       <div className="absolute top-4 right-4 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button 
+        <button
           onClick={onResize}
           className="p-1.5 bg-secondary border border-border rounded-md hover:bg-primary hover:text-primary-foreground transition-colors shadow-sm"
           title="Toggle Container Size"
         >
           <Maximize2 className="w-3.5 h-3.5" />
         </button>
-        <div 
-          {...attributes} {...listeners} 
+        <div
+          {...attributes}
+          {...listeners}
           className="p-1.5 bg-secondary border border-border rounded-md cursor-grab active:grabbing shadow-sm"
         >
           <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
@@ -58,8 +55,6 @@ const SortableWidget = ({ id, children, isFullWidth, onResize }) => {
     </div>
   );
 };
-
-// --- INTERNAL UI COMPONENTS (WHITE-LABEL READY) ---
 
 const StatCard = ({ label, value, icon: Icon }) => (
   <div className="bg-card px-5 py-4 rounded-2xl border border-border shadow-sm flex-1 min-w-[200px] hover:border-primary/20 transition-colors">
@@ -77,6 +72,7 @@ const RevenueChart = () => {
     { label: 'MAY', value: 35 }, { label: 'JUL', value: 55 },
     { label: 'SEP', value: 75 }, { label: 'NOV', value: 100 },
   ];
+
   return (
     <div className="bg-card p-8 rounded-2xl border border-border shadow-sm h-full flex flex-col min-h-[400px]">
       <div className="flex justify-between items-start mb-10">
@@ -91,8 +87,8 @@ const RevenueChart = () => {
       <div className="flex-1 flex items-end gap-3 sm:gap-6 mt-auto">
         {data.map((col, i) => (
           <div key={i} className="flex-1 flex flex-col items-center gap-4 group h-full justify-end">
-            <div 
-              style={{ height: `${col.value}%` }} 
+            <div
+              style={{ height: `${col.value}%` }}
               className={cn(
                 "w-full rounded-t-md transition-all duration-500",
                 i === data.length - 1 ? 'bg-primary shadow-lg shadow-primary/20' : 'bg-secondary group-hover:bg-muted'
@@ -115,9 +111,9 @@ const MarginChart = () => (
     <div className="relative w-44 h-44 flex items-center justify-center my-6">
       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
         <circle cx="80" cy="80" r="64" fill="none" stroke="hsl(var(--secondary))" strokeWidth="14" />
-        <circle 
-          cx="80" cy="80" r="64" fill="none" stroke="hsl(var(--primary))" strokeWidth="14" 
-          strokeDasharray="402" strokeDashoffset="104" strokeLinecap="round" 
+        <circle
+          cx="80" cy="80" r="64" fill="none" stroke="hsl(var(--primary))" strokeWidth="14"
+          strokeDasharray="402" strokeDashoffset="104" strokeLinecap="round"
         />
       </svg>
       <div className="absolute text-center">
@@ -194,10 +190,7 @@ const GrowthForecast = () => (
   </div>
 );
 
-// --- MAIN PAGE ---
-
 export default function OverviewPage() {
-  // Widget Order & Resize States
   const [items, setItems] = useState(['revenue', 'margin', 'audit', 'growth']);
   const [sizes, setSizes] = useState({ revenue: true, audit: true, margin: false, growth: false });
 
@@ -207,12 +200,12 @@ export default function OverviewPage() {
   );
 
   const toggleResize = (id) => {
-    setSizes(prev => ({ ...prev, [id]: !prev[id] }));
+    setSizes((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       setItems((prev) => {
         const oldIndex = prev.indexOf(active.id);
         const newIndex = prev.indexOf(over.id);
@@ -222,7 +215,7 @@ export default function OverviewPage() {
   };
 
   const renderWidget = (id) => {
-    switch(id) {
+    switch (id) {
       case 'revenue': return <RevenueChart />;
       case 'margin': return <MarginChart />;
       case 'audit': return <AuditPipeline />;
@@ -233,8 +226,6 @@ export default function OverviewPage() {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700 pb-20">
-      
-      {/* 1. Top Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
         <div>
           <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Finance Hub v2.0</p>
@@ -247,15 +238,14 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* 2. Drag & Drop Builder Canvas */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={items} strategy={verticalListSortingStrategy}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {items.map((id) => (
-              <SortableWidget 
-                key={id} 
-                id={id} 
-                isFullWidth={sizes[id]} 
+              <SortableWidget
+                key={id}
+                id={id}
+                isFullWidth={sizes[id]}
                 onResize={() => toggleResize(id)}
               >
                 {renderWidget(id)}
@@ -265,7 +255,6 @@ export default function OverviewPage() {
         </SortableContext>
       </DndContext>
 
-      {/* 3. Footer System Bar */}
       <div className="flex flex-wrap gap-10 py-8 border-t border-border">
         <div className="flex items-center gap-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-200" />

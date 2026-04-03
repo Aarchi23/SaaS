@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Search, Filter, ChevronRight, ArrowUpRight, 
-  ShieldAlert, BadgeCheck, Clock, GripVertical 
+import {
+  Search,
+  ShieldAlert, BadgeCheck, Clock, GripVertical
 } from 'lucide-react';
 
-// dnd-kit imports
 import {
-  DndContext, 
+  DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -26,7 +25,6 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { cn } from '@/lib/utils';
 
-// --- DRAGGABLE WRAPPER ---
 const SortableWidget = ({ id, children }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
@@ -39,10 +37,9 @@ const SortableWidget = ({ id, children }) => {
 
   return (
     <div ref={setNodeRef} style={style} className="relative group">
-      {/* Drag Handle - Only visible on hover */}
-      <div 
-        {...attributes} 
-        {...listeners} 
+      <div
+        {...attributes}
+        {...listeners}
         className="absolute top-4 right-4 z-30 cursor-grab active:grabbing p-1.5 bg-secondary border border-border rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <GripVertical className="w-4 h-4 text-muted-foreground" />
@@ -52,20 +49,18 @@ const SortableWidget = ({ id, children }) => {
   );
 };
 
-// --- REUSABLE UI COMPONENTS ---
-
-const MetricCard = ({ label, value, subtext, trend, variant = "default" }) => (
+const MetricCard = ({ label, value, subtext, trend, variant = 'default' }) => (
   <div className="bg-card p-6 rounded-xl border border-border shadow-sm h-full">
     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{label}</p>
     <h3 className={cn(
       "text-3xl font-bold tracking-tight",
-      variant === "destructive" ? "text-destructive" : "text-card-foreground"
+      variant === 'destructive' ? 'text-destructive' : 'text-card-foreground'
     )}>{value}</h3>
     <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
       {trend && (
         <span className={cn(
           "px-2 py-1 rounded-full",
-          variant === "destructive" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+          variant === 'destructive' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
         )}>
           {trend}
         </span>
@@ -77,9 +72,9 @@ const MetricCard = ({ label, value, subtext, trend, variant = "default" }) => (
 
 const StatusBadge = ({ status }) => {
   const styles = {
-    CLEARED: "bg-primary/10 text-primary border-primary/20",
-    FLAGGED: "bg-destructive/10 text-destructive border-destructive/20",
-    PENDING: "bg-secondary text-muted-foreground border-border",
+    CLEARED: 'bg-primary/10 text-primary border-primary/20',
+    FLAGGED: 'bg-destructive/10 text-destructive border-destructive/20',
+    PENDING: 'bg-secondary text-muted-foreground border-border',
   };
   const Icons = { CLEARED: BadgeCheck, FLAGGED: ShieldAlert, PENDING: Clock };
   const Icon = Icons[status] || Clock;
@@ -92,10 +87,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// --- MAIN PAGE ---
-
-const AnalysisPage = () => {
-  // Widget State for Phase 2 "Builder" Demand
+export default function TransactionsPage() {
   const [widgetOrder, setWidgetOrder] = useState(['metrics', 'table']);
 
   const sensors = useSensors(
@@ -105,7 +97,7 @@ const AnalysisPage = () => {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       setWidgetOrder((items) => {
         const oldIndex = items.indexOf(active.id);
         const newIndex = items.indexOf(over.id);
@@ -122,15 +114,10 @@ const AnalysisPage = () => {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700 pb-20">
-      
-      {/* Header (Non-draggable) */}
       <div className="flex justify-between items-end">
         <div>
-          {/* <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">Virtus Finance Hub</span>
-          </div> */}
-          <h2 className="text-4xl font-black text-foreground tracking-tighter">Analysis Engine</h2>
+          <h2 className="text-4xl font-black text-foreground tracking-tighter">Transactions</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Review, filter, and reorder operational transaction widgets.</p>
         </div>
       </div>
 
@@ -140,14 +127,12 @@ const AnalysisPage = () => {
             {widgetOrder.map((id) => (
               <SortableWidget key={id} id={id}>
                 {id === 'metrics' ? (
-                  /* --- METRICS WIDGET --- */
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <MetricCard label="Total Volume" value="$14.2M" trend="+12.4%" subtext="vs prev" />
                     <MetricCard label="Flagged" value="42" variant="destructive" subtext="Action Required" />
                     <MetricCard label="Avg Ticket" value="$2,842" subtext="Steady" />
                   </div>
                 ) : (
-                  /* --- TABLE WIDGET --- */
                   <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                     <div className="p-6 border-b border-border bg-secondary/10 flex justify-between gap-4">
                       <div className="relative flex-1 max-w-sm">
@@ -181,7 +166,7 @@ const AnalysisPage = () => {
                               <td className="px-8 py-5 flex justify-center">
                                 <StatusBadge status={t.status} />
                               </td>
-                              <td className={cn("px-8 py-5 text-right font-bold text-sm tabular-nums", t.status === 'FLAGGED' ? "text-destructive" : "text-foreground")}>
+                              <td className={cn("px-8 py-5 text-right font-bold text-sm tabular-nums", t.status === 'FLAGGED' ? 'text-destructive' : 'text-foreground')}>
                                 {t.amount}
                               </td>
                             </tr>
@@ -198,6 +183,4 @@ const AnalysisPage = () => {
       </DndContext>
     </div>
   );
-};
-
-export default AnalysisPage;
+}
