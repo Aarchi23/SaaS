@@ -36,12 +36,12 @@ const Sidebar = () => {
                 className={`flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-colors cursor-pointer mb-1 ${
                   isActive 
                     ? 'bg-blue-50 text-blue-600' 
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                    : 'text-[hsl(var(--neutral-500))] hover:bg-[hsl(var(--neutral-50))] hover:text-[hsl(var(--neutral-700))]'
                 }`}
               >
                 {/* Icon Placeholder */}
                 <div className={`w-4 h-4 rounded-sm transition-colors ${
-                  isActive ? 'bg-blue-600' : 'bg-slate-300'
+                  isActive ? 'bg-blue-600' : 'bg-[hsl(var(--neutral-300))]'
                 }`} />
                 
                 <span>{item.label}</span>
@@ -71,10 +71,10 @@ const Sidebar = () => {
         </div>
 
         <div className="mt-8 flex items-center gap-3 px-2">
-          <div className="w-9 h-9 bg-orange-200 rounded-full flex-shrink-0" />
+          <div className="w-9 h-9 bg-[hsl(var(--brand-accent))] rounded-full flex-shrink-0" />
           <div className="overflow-hidden">
-            <p className="text-sm font-bold text-slate-800 truncate">Marcus Sterling</p>
-            <p className="text-[10px] text-slate-400 truncate">Chief Financial Officer</p>
+            <p className="text-sm font-bold text-[hsl(var(--neutral-800))] truncate">Marcus Sterling</p>
+            <p className="text-[10px] text-[hsl(var(--neutral-400))] truncate">Chief Financial Officer</p>
           </div>
         </div>
       </div>

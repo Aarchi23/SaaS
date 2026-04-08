@@ -148,7 +148,7 @@ export default function NewReportOnePage() {
       <section ref={step3Ref} className="grid grid-cols-1 lg:grid-cols-3 gap-8 scroll-mt-24 pt-12 border-t border-border">
          <div className="lg:col-span-2 space-y-8">
             <div className="flex flex-col items-start gap-4">
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
+                <div className="w-12 h-12 bg-[hsl(var(--brand-primary))/10] rounded-2xl flex items-center justify-center text-[hsl(var(--brand-primary))]">
                    <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h2 className="text-3xl font-bold text-foreground">Report Ready for Export</h2>
@@ -178,7 +178,7 @@ export default function NewReportOnePage() {
                         <div className="flex items-center gap-4">
                            <div className={cn(
                              "w-10 h-10 rounded-lg flex items-center justify-center",
-                             act.variant === 'destructive' ? 'bg-destructive/10 text-destructive' : 'bg-emerald-500/10 text-emerald-500'
+                             act.variant === 'destructive' ? 'bg-destructive/10 text-destructive' : 'bg-[hsl(var(--brand-primary))/10] text-[hsl(var(--brand-primary))]'
                            )}>
                              <act.icon className="w-5 h-5" />
                            </div>

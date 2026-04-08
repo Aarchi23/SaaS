@@ -84,7 +84,7 @@ const RevenueChart = () => {
           <h3 className="font-bold text-card-foreground text-lg">Annual Recurring Revenue</h3>
           <p className="text-xs text-muted-foreground mt-1">YoY growth performance tracking</p>
         </div>
-        <span className="bg-emerald-500/10 text-emerald-600 text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1 uppercase tracking-wider">
+        <span className="bg-[hsl(var(--brand-primary))/10] text-[hsl(var(--brand-primary-dark))] text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1 uppercase tracking-wider">
           <ArrowUpRight className="w-3 h-3" /> 22.4%
         </span>
       </div>
@@ -189,7 +189,7 @@ const GrowthForecast = () => (
         <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] mb-1">Avg Rate</p>
         <p className="text-3xl font-black text-background tracking-tighter">14.2%</p>
       </div>
-      <div className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-3 py-1.5 rounded-lg border border-emerald-500/20 uppercase tracking-widest">+2.4%</div>
+      <div className="bg-[hsl(var(--brand-primary))/20] text-[hsl(var(--brand-primary))] text-[10px] font-black px-3 py-1.5 rounded-lg border border-[hsl(var(--brand-primary))/20] uppercase tracking-widest">+2.4%</div>
     </div>
   </div>
 );
@@ -268,7 +268,7 @@ export default function OverviewPage() {
       {/* 3. Footer System Bar */}
       <div className="flex flex-wrap gap-10 py-8 border-t border-border">
         <div className="flex items-center gap-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-200" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--brand-primary))] animate-pulse shadow-lg shadow-[hsl(var(--brand-primary-light))]" />
           <span>Engine: V4.2 Optimal</span>
         </div>
         <div className="flex items-center gap-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
