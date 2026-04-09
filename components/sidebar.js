@@ -25,6 +25,7 @@ export default function Sidebar() {
         <div className="space-y-1">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
+
             return (
               <Link
                 key={item.path}
@@ -62,7 +63,7 @@ export default function Sidebar() {
         </div>
 
         <div className="mt-8 flex items-center gap-3 px-2">
-          <div className="h-9 w-9 shrink-0 rounded-full bg-orange-200" />
+          <div className="h-9 w-9 shrink-0 rounded-full bg-[hsl(var(--brand-accent))]" />
           <div className="overflow-hidden">
             <p className="truncate text-sm font-bold text-foreground">Marcus Sterling</p>
             <p className="truncate text-[10px] text-muted-foreground">Chief Financial Officer</p>

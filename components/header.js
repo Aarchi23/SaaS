@@ -28,6 +28,7 @@ export default function Header() {
         <nav className="flex h-16 gap-6 text-sm font-medium text-muted-foreground">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+
             return (
               <Link
                 key={item.href}
