@@ -1,0 +1,42 @@
+'use client';
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {} });
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  // On mount, read saved preference or system preference
+  useEffect(() => {
+    const stored = localStorage.getItem('findash-theme');
+    if (stored === 'dark' || stored === 'light') {
+      setTheme(stored);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+  }, []);
+
+  // Apply/remove .dark class on <html> whenever theme changes
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('findash-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  return useContext(ThemeContext);
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
   FileText, BarChart, PieChart, Activity, 
   Download, Plus, Mail, MoreVertical, 
@@ -51,7 +52,7 @@ export default function ReportsPage() {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (over && active.id !== over.id) {
+    if (active.id !== over.id) {
       setLayoutOrder((items) => {
         const oldIndex = items.indexOf(active.id);
         const newIndex = items.indexOf(over.id);
@@ -74,14 +75,19 @@ export default function ReportsPage() {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <motion.div
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="space-y-8"
+    >
       
       {/* 1. Header (Dynamic Navigation) */}
-      <div className="flex justify-between items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06, duration: 0.36 }}
+        className="flex justify-between items-center"
+      >
         <div>
-          {/* <nav className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 flex gap-2">
-            <span>HOME</span> <span>{'>'}</span> <span className="text-primary">REPORTS</span>
-          </nav> */}
           <h1 className="text-3xl font-bold text-foreground tracking-tight">Financial Reports</h1>
         </div>
         <div className="flex gap-3">
@@ -92,20 +98,29 @@ export default function ReportsPage() {
             <Download className="w-4 h-4" /> Export All
           </button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* 2. Quick Action Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 2. Quick Action Widgets — stagger animated */}
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        initial="initial"
+        animate="animate"
+        variants={{ animate: { transition: { staggerChildren: 0.08 } } }}
+      >
         {quickActions.map((action, i) => (
-          <div key={i} className="bg-card p-5 rounded-xl border border-border shadow-sm hover:border-primary/50 transition cursor-pointer group">
+          <motion.div
+            key={i}
+            variants={{ initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0, transition: { duration: 0.32 } } }}
+            className="bg-card p-5 rounded-xl border border-border shadow-sm hover:border-primary/50 transition cursor-pointer group"
+          >
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary transition-colors">
               <action.icon className="w-5 h-5 text-primary group-hover:text-primary-foreground transition-colors" />
             </div>
             <h3 className="font-bold text-card-foreground text-sm group-hover:text-primary transition">{action.title}</h3>
             <p className="text-[10px] text-muted-foreground font-medium">{action.sub}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* 3. Draggable Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -204,6 +219,6 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
